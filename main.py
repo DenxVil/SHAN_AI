@@ -2,7 +2,7 @@
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler
 import torch
-from transformers import LLaMAForConditionalGeneration, LLaMATokenizer
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
@@ -12,12 +12,12 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Telegram Bot Token
-TOKEN = "5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo"
+TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
 
-# LLaMA Model and Tokenizer
-model_name = "llama"
-model = LLaMAForConditionalGeneration.from_pretrained(model_name)
-tokenizer = LLaMATokenizer.from_pretrained(model_name)
+# Model and Tokenizer
+model_name = 'llama'
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # Initialize NLTK
 nltk.download('vader_lexicon')
@@ -73,4 +73,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
