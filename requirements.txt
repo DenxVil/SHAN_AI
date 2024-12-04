@@ -2,5 +2,4 @@ transformers==4.21.3
 torch==1.12.1
 nltk==3.7
 python-telegram-bot==20.0a2
-emoReact==1.0.0
 sentencepiece==0.1.96
