@@ -7,9 +7,6 @@ import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
-import nltk
-from nltk.sentiment import SentimentIntensityAnalyzer
-from nltk.tokenize import word_tokenize
 import logging
 
 # Enable logging
@@ -20,45 +17,19 @@ logger = logging.getLogger(__name__)
 model = T5ForConditionalGeneration.from_pretrained('t5-small')
 tokenizer = T5Tokenizer.from_pretrained('t5-small')
 
-# Initialize NLTK
-nltk.download('vader_lexicon')
-nltk.download('punkt')
-
-# Sentiment Analysis
-sia = SentimentIntensityAnalyzer()
-
 # Define a function to generate responses
-def generate_response(input_text, sentiment):
-    if sentiment == "Positive":
-        response = "That's great to hear! What's making you happy today?"
-    elif sentiment == "Negative":
-        response = "Sorry to hear that. Would you like to talk about what's bothering you?"
-    else:
-        response = "That's interesting! Can you tell me more about it?"
-    
+def generate_response(input_text):
     inputs = tokenizer(input_text, return_tensors="pt")
     outputs = model.generate(inputs["input_ids"], max_length=100)
-    generated_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
     
-    return response + " " + generated_response
-
-# Define a function to analyze sentiment
-def sentiment_analysis(input_text):
-    sentiment_scores = sia.polarity_scores(input_text)
-    compound_score = sentiment_scores['compound']
-    if compound_score >= 0.05:
-        return "Positive"
-    elif compound_score <= -0.05:
-        return "Negative"
-    else:
-        return "Neutral"
+    return response
 
 # Define a function to handle Telegram updates
 async def handle_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         input_text = update.message.text
-        sentiment = sentiment_analysis(input_text)
-        response = generate_response(input_text, sentiment)
+        response = generate_response(input_text)
         await update.message.reply_text(response)
     except Exception as e:
         await update.message.reply_text("An error occurred. Please try again.")
