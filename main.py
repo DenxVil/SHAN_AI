@@ -4,7 +4,8 @@
 
 
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
 import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import nltk
@@ -47,32 +48,30 @@ def sentiment_analysis(input_text):
     else:
         return "Neutral"
 
-def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm SHAN AI.")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm SHAN AI.")
 
-def help_command(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="I can assist you with various tasks. Type 'hello' to get started!")
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="I can assist you with various tasks. Type 'hello' to get started!")
 
-def echo(update, context):
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
     response = generate_response(user_text)
     sentiment = sentiment_analysis(user_text)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Response: {response}\nSentiment: {sentiment}")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Response: {response}\nSentiment: {sentiment}")
 
 def main():
-    updater = Updater(TOKEN)
-    dispatcher = updater.dispatcher
+    application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start)
     help_handler = CommandHandler('help', help_command)
-    echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
+    echo_handler = MessageHandler(None, echo)
 
-    dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(help_handler)
-    dispatcher.add_handler(echo_handler)
+    application.add_handler(start_handler)
+    application.add_handler(help_handler)
+    application.add_handler(echo_handler)
 
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
