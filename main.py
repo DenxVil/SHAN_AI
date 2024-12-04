@@ -1,6 +1,7 @@
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, filters
 import torch
+from transformers import LLaMA, LLaMATokenizer
 from llama import LLaMA, Tokenizer
 
 model = LLaMA(model_name="llama-3.2", device="cuda" if torch.cuda.is_available() else "cpu")
