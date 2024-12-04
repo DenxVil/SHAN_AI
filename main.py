@@ -69,7 +69,7 @@ def echo(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=f"Response: {response}\nSentiment: {sentiment}")
 
 def main():
-    updater = Updater(TOKEN, use_context=True)
+    updater = Updater(TOKEN)
 
     dispatcher = updater.dispatcher
 
