@@ -4,7 +4,7 @@
 
 
 import torch
-from transformers import T5ForConditionalGeneration, T5Tokenizer
+from transformers import BardForConditionalGeneration, BardTokenizer
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
 import logging
@@ -13,23 +13,29 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load pre-trained T5 model and tokenizer
-model = T5ForConditionalGeneration.from_pretrained('t5-small')
-tokenizer = T5Tokenizer.from_pretrained('t5-small')
+# Load pre-trained Bard model and tokenizer
+model = BardForConditionalGeneration.from_pretrained('google/bard')
+tokenizer = BardTokenizer.from_pretrained('google/bard')
 
-# Define a function to generate responses
-def generate_response(input_text):
+def analyze_and_generate(input_text):
+    # Preprocess input text
     inputs = tokenizer(input_text, return_tensors="pt")
-    outputs = model.generate(inputs["input_ids"], max_length=100)
-    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
     
-    return response
+    # Analyze input text
+    outputs = model(**inputs)
+    analysis = outputs.last_hidden_state[:, 0, :]
+    
+    # Generate response
+    response = model.generate(inputs["input_ids"], max_length=100)
+    response_text = tokenizer.decode(response[0], skip_special_tokens=True)
+    
+    return analysis, response_text
 
 # Define a function to handle Telegram updates
 async def handle_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         input_text = update.message.text
-        response = generate_response(input_text)
+        analysis, response = analyze_and_generate(input_text)
         await update.message.reply_text(response)
     except Exception as e:
         await update.message.reply_text("An error occurred. Please try again.")
