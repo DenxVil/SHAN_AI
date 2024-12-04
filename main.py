@@ -1,4 +1,5 @@
 
+# Solely coded by Denvil ♥️
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler
 import torch
@@ -6,14 +7,14 @@ from transformers import T5ForConditionalGeneration, T5Tokenizer
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
-import emoReact
+import sentencepiece
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Telegram Bot Token
-TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TOKEN = "5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo
 
 # Model and Tokenizer
 model_name = 't5-small'
@@ -27,24 +28,11 @@ nltk.download('punkt')
 # Sentiment Analysis
 sia = SentimentIntensityAnalyzer()
 
-# EmoReact Module
-emo_react = emoReact.EmoReact()
-
 def generate_response(input_text):
-    # Analyze the input text using the EmoReact module
-    emotions = emo_react.analyze(input_text)
-
-    # Generate a response based on the emotions detected
-    if emotions['happiness'] > 0.5:
-        return "I'm happy to hear that!"
-    elif emotions['sadness'] > 0.5:
-        return "Sorry to hear that. Would you like to talk about it?"
-    else:
-        # Generate a response using the T5 model
-        inputs = tokenizer(input_text, return_tensors="pt")
-        outputs = model.generate(inputs["input_ids"], max_length=100)
-        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return response
+    inputs = tokenizer(input_text, return_tensors="pt")
+    outputs = model.generate(inputs["input_ids"], max_length=100)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return response
 
 def sentiment_analysis(input_text):
     sentiment_scores = sia.polarity_scores(input_text)
@@ -87,3 +75,12 @@ def main():
 
 if __name__ == '__main__':
     main()
+```
+And here is the `requirements.txt` file:
+```
+transformers==4.21.3
+torch==1.12.1
+nltk==3.7
+python-telegram-bot==20.0a2
+sentencepiece==0.1.96
+
