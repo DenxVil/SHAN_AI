@@ -1,32 +1,76 @@
+
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, filters
+from telegram.ext import Updater, CommandHandler, MessageHandler
 import torch
-from transformers import LLaMA, LLaMATokenizer
-from llama import LLaMA, Tokenizer
+from transformers import LLaMAForConditionalGeneration, LLaMATokenizer
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
+from nltk.tokenize import word_tokenize
 
-model = LLaMA(model_name="llama-3.2", device="cuda" if torch.cuda.is_available() else "cpu")
-tokenizer = Tokenizer(model_name="llama-3.2")
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+# Telegram Bot Token
 TOKEN = "5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo"
 
-logging.basicConfig(level=logging.INFO)
+# LLaMA Model and Tokenizer
+model_name = "llama"
+model = LLaMAForConditionalGeneration.from_pretrained(model_name)
+tokenizer = LLaMATokenizer.from_pretrained(model_name)
+
+# Initialize NLTK
+nltk.download('vader_lexicon')
+nltk.download('punkt')
+
+# Sentiment Analysis
+sia = SentimentIntensityAnalyzer()
+
+def generate_response(input_text):
+    inputs = tokenizer(input_text, return_tensors="pt")
+    outputs = model.generate(inputs["input_ids"], max_length=100)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return response
+
+def sentiment_analysis(input_text):
+    sentiment_scores = sia.polarity_scores(input_text)
+    compound_score = sentiment_scores['compound']
+    if compound_score >= 0.05:
+        return "Positive"
+    elif compound_score <= -0.05:
+        return "Negative"
+    else:
+        return "Neutral"
 
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm your chatbot.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm SHAN AI.")
 
-def handle_message(update, context):
-    message = update.message.text
-    response = model.generate(tokenizer.encode(message, return_tensors="pt"), max_length=100)
-    response = tokenizer.decode(response[0], skip_special_tokens=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+def help_command(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="I can assist you with various tasks. Type 'hello' to get started!")
+
+def echo(update, context):
+    user_text = update.message.text
+    response = generate_response(user_text)
+    sentiment = sentiment_analysis(user_text)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Response: {response}\nSentiment: {sentiment}")
 
 def main():
     updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(filters.text, handle_message))
+
+    dispatcher = updater.dispatcher
+
+    start_handler = CommandHandler('start', start)
+    help_handler = CommandHandler('help', help_command)
+
+    echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
+
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(help_handler)
+    dispatcher.add_handler(echo_handler)
+
     updater.start_polling()
     updater.idle()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
+
