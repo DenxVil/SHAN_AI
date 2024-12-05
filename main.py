@@ -3,63 +3,50 @@
 
 
 
-import torch
-from transformers import BardForConditionalGeneration, BardTokenizer
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
-import logging
+from transformers import LLaMATokenizer, LLaMAForConditionalGeneration
+import torch
+import os
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Load pre-trained LLaMA model and tokenizer
+model = LLaMAForConditionalGeneration.from_pretrained("decapoda-research/llama-7b")
+tokenizer = LLaMATokenizer.from_pretrained("decapoda-research/llama-7b")
 
-# Load pre-trained Bard model and tokenizer
-model = BardForConditionalGeneration.from_pretrained('google/bard')
-tokenizer = BardTokenizer.from_pretrained('google/bard')
-
-def analyze_and_generate(input_text):
-    # Preprocess input text
+def generate_text(input_text):
     inputs = tokenizer(input_text, return_tensors="pt")
-    
-    # Analyze input text
-    outputs = model(**inputs)
-    analysis = outputs.last_hidden_state[:, 0, :]
-    
-    # Generate response
-    response = model.generate(inputs["input_ids"], max_length=100)
-    response_text = tokenizer.decode(response[0], skip_special_tokens=True)
-    
-    return analysis, response_text
+    outputs = model.generate(inputs["input_ids"], max_length=100)
+    response_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return response_text
 
-# Define a function to handle Telegram updates
-async def handle_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        input_text = update.message.text
-        analysis, response = analyze_and_generate(input_text)
-        await update.message.reply_text(response)
-    except Exception as e:
-        await update.message.reply_text("An error occurred. Please try again.")
+def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm SHAN AI.")
 
-# Define the main function
+def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="I can assist you with various tasks. Type 'hello' to get started!")
+
+def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    input_text = update.message.text
+    response = generate_text(input_text)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+
 def main():
-    # Initialize the Telegram bot
-    application = ApplicationBuilder().token("5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo").build()
+    token = os.getenv("TOKEN")
+    if token is None:
+        print("TOKEN environment variable is not set.")
+        return
 
-    # Define the command handlers
-    start_handler = CommandHandler('start', lambda update, context: context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm SHAN AI."))
-    help_handler = CommandHandler('help', lambda update, context: context.bot.send_message(chat_id=update.effective_chat.id, text="I can assist you with various tasks. Type 'hello' to get started!"))
+    application = ApplicationBuilder().token(token).build()
 
-    # Define the message handler
-    message_handler = MessageHandler(None, handle_update)
+    start_handler = CommandHandler('start', start)
+    help_handler = CommandHandler('help', help)
+    message_handler = MessageHandler(None, handle_message)
 
-    # Add the handlers to the application
     application.add_handler(start_handler)
     application.add_handler(help_handler)
     application.add_handler(message_handler)
 
-    # Run the application
     application.run_polling()
 
-# Run the main function
 if __name__ == '__main__':
     main()
