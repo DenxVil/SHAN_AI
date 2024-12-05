@@ -25,8 +25,11 @@ async def generate_text(input_text):
             try:
                 response_text = await response.json()
                 return response_text["response"]
-            except aiohttp.client_exceptions.ContentTypeError:
-                print("Error: Response is not JSON")
+            except aiohttp.client_exceptions.ContentTypeError as e:
+                print(f"Error: {e}")
+                return None
+            except Exception as e:
+                print(f"Error: {e}")
                 return None
 
 # Telegram bot commands
