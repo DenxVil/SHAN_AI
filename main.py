@@ -2,35 +2,15 @@
 # Solely coded by Denvil ♥️
 
 
-import os
-import aiohttp
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
+from together import Together
 
 # API Keys
 TELEGRAM_API_KEY = "5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo"
-TOGETHER_API_KEY = "8cd3d00fab20dcaf04639e52cf553ce5052c81d0572b78b6becdd08ae4e8e951"
 
-# Generate text using Together API
-async def generate_text(input_text):
-    api_endpoint = "https://api.together.xyz/models/llama"
-    headers = {
-        "Authorization": f"Bearer {TOGETHER_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    async with aiohttp.ClientSession() as session:
-        async with session.post(api_endpoint, headers=headers, json={"prompt": input_text}) as response:
-            print(f"Response status: {response.status}")
-            print(f"Response headers: {response.headers}")
-            try:
-                response_text = await response.json()
-                return response_text["response"]
-            except aiohttp.client_exceptions.ContentTypeError as e:
-                print(f"Error: {e}")
-                return None
-            except Exception as e:
-                print(f"Error: {e}")
-                return None
+# Create a Together client
+client = Together()
 
 # Telegram bot commands
 async def start(update: Update, context: ContextTypes):
@@ -41,11 +21,11 @@ async def help(update: Update, context: ContextTypes):
 
 async def handle_message(update: Update, context: ContextTypes):
     input_text = update.message.text
-    response = await generate_text(input_text)
-    if response is not None:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
-    else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Error: Unable to generate response")
+    response = client.chat.completions.create(
+        model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
+        messages=[{"role": "user", "content": input_text}],
+    )
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=response.choices[0].message.content)
 
 def main():
     # Create Telegram application
