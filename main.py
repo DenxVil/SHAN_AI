@@ -3,20 +3,21 @@
 
 
 
+import os
+import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-import torch
-import os
-
-# Load pre-trained LLaMA model and tokenizer
-model = AutoModelForSeq2SeqLM.from_pretrained("decapoda-research/llama-7b")
-tokenizer = AutoTokenizer.from_pretrained("decapoda-research/llama-7b")
 
 def generate_text(input_text):
-    inputs = tokenizer(input_text, return_tensors="pt")
-    outputs = model.generate(inputs["input_ids"], max_length=100)
-    response_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    api_endpoint = "https://api.together.xyz/models/llama"
+    api_key = "8cd3d00fab20dcaf04639e52cf553ce5052c81d0572b78b6becdd08ae4e8e951"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {"prompt": input_text}
+    response = requests.post(api_endpoint, headers=headers, json=data)
+    response_text = response.json()["response"]
     return response_text
 
 def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -31,11 +32,7 @@ def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.bot.send_message(chat_id=update.effective_chat.id, text=response)
 
 def main():
-    token = os.getenv("TOKEN")
-    if token is None:
-        print("TOKEN environment variable is not set.")
-        return
-
+    token = "8cd3d00fab20dcaf04639e52cf553ce5052c81d0572b78b6becdd08ae4e8e951"
     application = ApplicationBuilder().token(token).build()
 
     start_handler = CommandHandler('start', start)
