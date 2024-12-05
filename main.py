@@ -32,7 +32,7 @@ def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.bot.send_message(chat_id=update.effective_chat.id, text=response)
 
 def main():
-    token = "8cd3d00fab20dcaf04639e52cf553ce5052c81d0572b78b6becdd08ae4e8e951"
+    token = "5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo"
     application = ApplicationBuilder().token(token).build()
 
     start_handler = CommandHandler('start', start)
