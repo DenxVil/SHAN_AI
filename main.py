@@ -8,9 +8,10 @@ from together import Together
 
 # API Keys
 TELEGRAM_API_KEY = "5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo"
+TOGETHER_API_KEY = "8cd3d00fab20dcaf04639e52cf553ce5052c81d0572b78b6becdd08ae4e8e951"
 
 # Create a Together client
-client = Together()
+client = Together(api_key=TOGETHER_API_KEY)
 
 # Telegram bot commands
 async def start(update: Update, context: ContextTypes):
