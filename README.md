@@ -1,5 +1,6 @@
 # SHAN_AI
 
+[![SHAN_AI Bot](https://github.com/Denvil-x/SHAN_AI/actions/workflows/shan-ai-bot.yml/badge.svg)](https://github.com/Denvil-x/SHAN_AI/actions/workflows/shan-ai-bot.yml)
 
 # Telegram Bot
 A simple Telegram bot built with Python.
