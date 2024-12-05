@@ -4,36 +4,37 @@
 
 
 import os
-import requests
+import aiohttp
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
 
-def generate_text(input_text):
+API_KEY = "5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo"
+TOGETHER_API_KEY = "8cd3d00fab20dcaf04639e52cf553ce5052c81d0572b78b6becdd08ae4e8e951"  # Replace with your Together API key
+
+async def generate_text(input_text):
     api_endpoint = "https://api.together.xyz/models/llama"
-    api_key = "8cd3d00fab20dcaf04639e52cf553ce5052c81d0572b78b6becdd08ae4e8e951"
     headers = {
-        "Authorization": f"Bearer {api_key}",
+        "Authorization": f"Bearer {TOGETHER_API_KEY}",
         "Content-Type": "application/json"
     }
-    data = {"prompt": input_text}
-    response = requests.post(api_endpoint, headers=headers, json=data)
-    response_text = response.json()["response"]
-    return response_text
+    async with aiohttp.ClientSession() as session:
+        async with session.post(api_endpoint, headers=headers, json={"prompt": input_text}) as response:
+            response_text = await response.json()
+            return response_text["response"]
 
-def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm SHAN AI.")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm SHAN AI.")
 
-def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="I can assist you with various tasks. Type 'hello' to get started!")
+async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="I can assist you with various tasks. Type 'hello' to get started!")
 
-def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     input_text = update.message.text
-    response = generate_text(input_text)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+    response = await generate_text(input_text)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
 
 def main():
-    token = "5762561230:AAHYeayO4kdUIPIMvJZrzv-x-qiJjpZpIgo"
-    application = ApplicationBuilder().token(token).build()
+    application = ApplicationBuilder().token(API_KEY).build()
 
     start_handler = CommandHandler('start', start)
     help_handler = CommandHandler('help', help)
