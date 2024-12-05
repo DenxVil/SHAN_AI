@@ -4,3 +4,4 @@ nltk==3.7
 python-telegram-bot==20.0a
 aiohttp
 sentencepiece==0.1.96
+together
