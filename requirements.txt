@@ -1,6 +1,7 @@
 
 nltk
+numpy
+pandas
 scikit-learn
-joblib
-pickle
-json
+skype
+telegram
