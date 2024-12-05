@@ -9,20 +9,24 @@ from response_generation.response_generation import ResponseGenerator
 from telegram_bot.bot import Bot
 
 def main():
-    # Initialize classifier
-    classifier = Classifier()
+    try:
+        # Initialize classifier
+        classifier = Classifier()
 
-    # Initialize profile access
-    profile_access = ProfileAccess()
+        # Initialize profile access
+        profile_access = ProfileAccess()
 
-    # Initialize response generator
-    response_generator = ResponseGenerator()
+        # Initialize response generator
+        response_generator = ResponseGenerator()
 
-    # Initialize Telegram bot
-    bot = Bot()
+        # Initialize Telegram bot
+        bot = Bot()
 
-    # Start the bot
-    bot.start()
+        # Start the bot
+        bot.start()
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
 if __name__ == '__main__':
     main()
