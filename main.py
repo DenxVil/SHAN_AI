@@ -1,14 +1,22 @@
 
 # Solely coded by Denvil ♥️
 
-`main.py`
-```
+
 import json
 from models.classifier import Classifier
 from preprocessing.text_preprocessing import preprocess_text
 from profile_access.profile_access import access_profile
 from response_generation.response_generation import generate_response
+import os
+import nltk
 
+# Specify a custom download directory for NLTK data
+nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
+nltk.data.path.append(nltk_data_dir)
+
+# Specify a custom directory for scikit-learn data
+sklearn_data_dir = os.path.join(os.getcwd(), 'sklearn_data')
+os.environ['SKLEARN_DATA_HOME'] = sklearn_data_dir
 def main():
     # Load the ai_profile.json file
     with open('ai_profile.json') as file:
