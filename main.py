@@ -1,9 +1,6 @@
 
 # Solely coded by Denvil ♥️
 
-
-
-
 import os
 import aiohttp
 from telegram import Update
@@ -22,8 +19,14 @@ async def generate_text(input_text):
     }
     async with aiohttp.ClientSession() as session:
         async with session.post(api_endpoint, headers=headers, json={"prompt": input_text}) as response:
-            response_text = await response.json()
-            return response_text["response"]
+            print(f"Response status: {response.status}")
+            print(f"Response headers: {response.headers}")
+            try:
+                response_text = await response.json()
+                return response_text["response"]
+            except aiohttp.client_exceptions.ContentTypeError:
+                print("Error: Response is not JSON")
+                return None
 
 # Telegram bot commands
 async def start(update: Update, context: ContextTypes):
@@ -35,7 +38,10 @@ async def help(update: Update, context: ContextTypes):
 async def handle_message(update: Update, context: ContextTypes):
     input_text = update.message.text
     response = await generate_text(input_text)
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+    if response is not None:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Error: Unable to generate response")
 
 def main():
     # Create Telegram application
