@@ -5,13 +5,13 @@
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
-from transformers import LLaMATokenizer, LLaMAForConditionalGeneration
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import torch
 import os
 
 # Load pre-trained LLaMA model and tokenizer
-model = LLaMAForConditionalGeneration.from_pretrained("decapoda-research/llama-7b")
-tokenizer = LLaMATokenizer.from_pretrained("decapoda-research/llama-7b")
+model = AutoModelForSeq2SeqLM.from_pretrained("decapoda-research/llama-7b")
+tokenizer = AutoTokenizer.from_pretrained("decapoda-research/llama-7b")
 
 def generate_text(input_text):
     inputs = tokenizer(input_text, return_tensors="pt")
