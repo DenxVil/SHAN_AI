@@ -6,7 +6,7 @@ from models.classifier import Classifier
 from preprocessing.text_preprocessing import preprocess_text
 from profile_access.profile_access import ProfileAccess
 from response_generation.response_generation import ResponseGenerator
-from telegram_bot.bot import Bot
+from telegram_bot.bot import TelegramBot
 
 def main():
     try:
