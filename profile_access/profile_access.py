@@ -1,7 +1,7 @@
 
 import json
 
-def access_profile(profile_data, entities, intent):
+def ProfileAccess(profile_data, entities, intent):
     if intent == 'ask_about_profile':
         if 'name' in entities:
             return profile_data['name']
