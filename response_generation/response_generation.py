@@ -1,6 +1,6 @@
 
 
-def generate_response(profile_info):
+def ResponseGenerator(profile_info):
     if isinstance(profile_info, list):
         response = ', '.join(profile_info)
     else:
