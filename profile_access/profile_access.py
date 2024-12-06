@@ -1,5 +1,4 @@
 
-```
 import json
 
 def access_profile(profile_data, entities, intent):
@@ -15,4 +14,4 @@ def access_profile(profile_data, entities, intent):
             return profile_data['abilities']
         elif 'knowledge' in entities:
             return profile_data['knowledge']
-```
+
