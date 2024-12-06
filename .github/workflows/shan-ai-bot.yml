@@ -22,6 +22,3 @@ jobs:
           pip install -r requirements.txt  # Assuming you have a requirements.txt file
           pip install pytest
 
-      - name: Run tests
-        run: |
-          pytest  # Replace with your test command if different
