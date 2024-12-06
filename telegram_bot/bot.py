@@ -1,6 +1,6 @@
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler
-
+token = '7845900356:AAEC59tP0_wVNwcWWfla_3iGSYqm8H0FQNM'
 logging.basicConfig(level=logging.INFO)
 
 TOKEN = '7845900356:AAEC59tP0_wVNwcWWfla_3iGSYqm8H0FQNM'  # Replace with your actual bot token
@@ -22,6 +22,10 @@ def main():
     updater.start_polling()
     updater.idle()
 
+class TelegramBot:
+    def __init__(self, token):
+        self.token = token
+        self.bot = telegram.Bot(token) 
 if __name__ == '__main__':
     main()
 
