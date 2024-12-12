@@ -2,15 +2,29 @@
 # Solely coded by Denvil ♥️
 
 
-from utils import preprocess_text
-import nltk
-nltk.download('punkt_tab')
+
+
+    
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
+import nltk
 import pickle
 import json
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('wordnet')
+nltk.download('stopwords')
+
+def preprocess_text(text):
+    lemmatizer = WordNetLemmatizer()
+    stop_words = set(stopwords.words('english'))
+    tokens = word_tokenize(text.lower())
+    tokens = [token for token in tokens if token.isalpha()]
+    tokens = [token for token in tokens if token not in stop_words]
+    tokens = [lemmatizer.lemmatize(token) for token in tokens]
+    return ' '.join(tokens)
 
 # Load the intents
 with open('intents.json') as f:
@@ -21,15 +35,18 @@ patterns = [preprocess_text(pattern) for intent in intents['intents'] for patter
 tags = [intent['tag'] for intent in intents['intents'] for _ in intent['patterns']]
 
 # Create a TF-IDF vectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 vectorizer = TfidfVectorizer()
 
 # Fit the vectorizer to the patterns and transform them into vectors
 pattern_vectors = vectorizer.fit_transform(patterns)
 
 # Split the data into training and testing sets
+from sklearn.model_selection import train_test_split
 pattern_train, pattern_test, tag_train, tag_test = train_test_split(pattern_vectors, tags, test_size=0.2, random_state=42)
 
 # Train a Multinomial Naive Bayes classifier on the training data
+from sklearn.naive_bayes import MultinomialNB
 model = MultinomialNB()
 model.fit(pattern_train, tag_train)
 
@@ -43,8 +60,12 @@ def main():
         model = pickle.load(f)
 
     while True:
-        # Get user input
-        user_input = input("User: ")
+        try:
+            # Get user input
+            user_input = input("User: ")
+        except EOFError:
+            print("EOFError: Unable to read input.")
+            break
 
         # Preprocess the user input
         user_input = preprocess_text(user_input)
