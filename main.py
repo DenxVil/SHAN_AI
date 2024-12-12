@@ -64,8 +64,8 @@ def main():
             # Get user input
             user_input = input("User: ")
         except EOFError:
-            print("EOFError: Unable to read input.")
-            break
+            user_input = "hello"  # provide a default input
+            print("User: ", user_input)
 
         # Preprocess the user input
         user_input = preprocess_text(user_input)
@@ -84,6 +84,7 @@ def main():
 
         # Print the response
         print("SHAN: ", response)
+        break  # exit the loop after one iteration
 
 if __name__ == "__main__":
     main()
