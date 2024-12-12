@@ -1,6 +1,7 @@
 
 import json
 
+
 def ProfileAccess(profile_data, entities, intent):
     if intent == 'ask_about_profile':
         if 'name' in entities:
